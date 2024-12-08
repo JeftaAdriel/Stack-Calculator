@@ -13,7 +13,7 @@
     "routes": [
         {
             "src": "/api/calculate",
-            "dest": "api/calculate.py"
+            "dest": "/api/calculate.py"
         },
         {
             "src": "/(.*)",
