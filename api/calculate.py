@@ -35,26 +35,31 @@ class CalculationResponse(BaseModel):
     final_result: float
 
 
-@app.post("/calculate", response_model=CalculationResponse)
+# @app.post("/calculate", response_model=CalculationResponse)
+# async def calculate(request: CalculationRequest):
+#     """
+#     Endpoint to perform stack-based calculations.
+#     """
+#     try:
+#         # Extract input values
+#         expression = request.expression
+#         mode = request.mode.lower()
+
+#         # Perform calculation based on mode
+#         if mode == "prefix":
+#             result = prefix_calculate(expression)
+#         elif mode == "postfix":
+#             result = postfix_calculate(expression)
+#         else:
+#             raise HTTPException(status_code=400, detail="Invalid calculation mode. Use 'prefix' or 'postfix'.")
+
+#         # Prepare response
+#         return {"steps": result.get("steps", []), "final_result": result.get("result", None)}  # Step-by-step calculations  # Final result
+
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+
+
+@app.post("/calculate")
 async def calculate(request: CalculationRequest):
-    """
-    Endpoint to perform stack-based calculations.
-    """
-    try:
-        # Extract input values
-        expression = request.expression
-        mode = request.mode.lower()
-
-        # Perform calculation based on mode
-        if mode == "prefix":
-            result = prefix_calculate(expression)
-        elif mode == "postfix":
-            result = postfix_calculate(expression)
-        else:
-            raise HTTPException(status_code=400, detail="Invalid calculation mode. Use 'prefix' or 'postfix'.")
-
-        # Prepare response
-        return {"steps": result.get("steps", []), "final_result": result.get("result", None)}  # Step-by-step calculations  # Final result
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+    return {"message": "API reachable", "input": request.dict()}
