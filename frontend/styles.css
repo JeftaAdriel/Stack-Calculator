@@ -11,14 +11,32 @@ body {
 
 .container {
     width: 100%;
-    max-width: 400px;
+    max-width: 800px;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
 .card {
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.expression-card .card-body,
+.controls-card .card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.results-card .card-body {
+    padding: 20px;
 }
 
 .card-header {
@@ -34,15 +52,9 @@ body {
     font-size: 1.5rem;
 }
 
-.card-body {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
 .input-group {
     margin-bottom: 20px;
+    width: 100%;
 }
 
 .input-group label {
@@ -63,6 +75,7 @@ body {
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
+    width: 100%;
 }
 
 button {
@@ -88,11 +101,12 @@ button:hover {
     opacity: 0.9;
 }
 
-.results {
+.results-card {
     margin-top: 20px;
     padding: 10px;
     background-color: #e0f7fa;
     border-radius: 4px;
+    width: 100%;
 }
 
 .hidden {

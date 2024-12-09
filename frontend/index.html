@@ -10,36 +10,38 @@
 
 <body>
     <div class="container">
-        <div class="card">
+        <div class="card expression-card">
+            <div class="card-header">
+                <h1>Enter Mathematical Expression</h1>
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <input type="text" id="expression" placeholder="Enter expression (e.g., 3 + 4 * 2)">
+                </div>
+            </div>
+        </div>
+        <div class="card controls-card">
             <div class="card-header">
                 <h1>Stack-Based Calculator</h1>
             </div>
             <div class="card-body">
-                <!-- Expression Input -->
-                <div class="input-group">
-                    <label for="expression">Mathematical Expression</label>
-                    <input type="text" id="expression" placeholder="Enter expression (e.g., 3 + 4 * 2)">
-                </div>
-
-                <!-- Mode Selection -->
                 <div class="mode-selection">
                     <button id="postfix-btn" class="active">Postfix</button>
                     <button id="prefix-btn">Prefix</button>
                 </div>
-
-                <!-- Calculate Button -->
                 <button id="calculate-btn">Calculate</button>
-
-                <!-- Results Display -->
-                <div id="results" class="results hidden">
-                    <h3>Calculation Steps:</h3>
-                    <div id="steps"></div>
-                    <p id="final-result"></p>
-                </div>
+            </div>
+        </div>
+        <div id="results" class="card results-card hidden">
+            <div class="card-header">
+                <h1>Calculation Steps</h1>
+            </div>
+            <div class="card-body">
+                <div id="steps"></div>
+                <p id="final-result"></p>
             </div>
         </div>
     </div>
-
     <script src="app.js"></script>
 </body>
 
