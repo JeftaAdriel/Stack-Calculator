@@ -36,6 +36,9 @@ body {
 
 .card-body {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .input-group {
