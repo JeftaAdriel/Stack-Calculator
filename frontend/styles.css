@@ -49,16 +49,9 @@ body {
     align-items: center;
 }
 
-.input-group label {
-    display: block;
-    margin-bottom: 5px;
-    color: #00796b;
-}
-
 .input-group input {
     width: 100%;
     max-width: 300px;
-    /* Limit the input field width */
     padding: 10px;
     border: 1px solid #b2ebf2;
     border-radius: 4px;
