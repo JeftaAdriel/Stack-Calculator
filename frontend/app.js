@@ -32,12 +32,10 @@ calculateBtn.addEventListener('click', async () => {
         return;
     }
 
-    // Display loading state
     calculateBtn.textContent = 'Calculating...';
     calculateBtn.disabled = true;
 
     try {
-        // API Request
         const response = await fetch('/api/calculate', {
             method: 'POST',
             headers: {
@@ -46,9 +44,17 @@ calculateBtn.addEventListener('click', async () => {
             body: JSON.stringify({ expression, mode }),
         });
 
+        // Log the full response for debugging
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
         const data = await response.json();
 
-        // Display Results
         stepsDiv.innerHTML = '';
         data.steps.forEach((step, index) => {
             const stepDiv = document.createElement('div');
@@ -59,10 +65,9 @@ calculateBtn.addEventListener('click', async () => {
 
         resultsDiv.classList.remove('hidden');
     } catch (error) {
-        console.error('Calculation error:', error);
-        alert('Failed to calculate. Please try again.');
+        console.error('Detailed Calculation Error:', error);
+        alert(`Calculation failed: ${error.message}`);
     } finally {
-        // Reset button state
         calculateBtn.textContent = 'Calculate';
         calculateBtn.disabled = false;
     }
