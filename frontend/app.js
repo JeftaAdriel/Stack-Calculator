@@ -99,21 +99,20 @@ function validateExpression(expression) {
 calculateBtn.addEventListener('click', async () => {
     const expression = expressionInput.value.trim();
 
-    if (!expression) {
-        alert('Please enter a mathematical expression');
-        return;
-    }
-
-    calculateBtn.textContent = 'Calculating...';
-    calculateBtn.disabled = true;
-
     try {
+
+        // Validate the expression
+        const validatedExpression = validateExpression(expression);
+
+        calculateBtn.textContent = 'Calculating...';
+        calculateBtn.disabled = true;
+
         const response = await fetch('/api/calculate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ expression, mode }),
+            body: JSON.stringify({ validatedExpression, mode }),
         });
 
         // Log the full response for debugging
