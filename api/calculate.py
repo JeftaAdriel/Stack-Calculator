@@ -84,4 +84,4 @@ async def calculate(request: CalculationRequest):
     except Exception as e:
         print(f"Calculation Endpoint Error: {e}")
         print(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e

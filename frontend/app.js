@@ -23,6 +23,78 @@ prefixBtn.addEventListener('click', () => {
     postfixBtn.classList.remove('active');
 });
 
+// Enhanced Input Validation Function
+function validateExpression(expression) {
+    // Remove all whitespace
+    const cleanedExpression = expression.replace(/\s+/g, '');
+
+    // Regular expression for valid characters (supporting float numbers)
+    const validCharRegex = /^[0-9+\-*/()\.^\s]+$/;
+
+    // Check 1: Only allow valid characters
+    if (!validCharRegex.test(cleanedExpression)) {
+        throw new Error('Invalid characters in expression. Only numbers and +, -, *, /, ^, (), . are allowed.');
+    }
+
+    // Check 2: Balanced parentheses
+    let parenthesesCount = 0;
+    for (let char of cleanedExpression) {
+        if (char === '(') parenthesesCount++;
+        if (char === ')') parenthesesCount--;
+
+        // Prevent negative count (more closing than opening)
+        if (parenthesesCount < 0) {
+            throw new Error('Unbalanced parentheses: Too many closing parentheses');
+        }
+    }
+
+    // Check 3: Parentheses are balanced at the end
+    if (parenthesesCount !== 0) {
+        throw new Error('Unbalanced parentheses: Not all parentheses are closed');
+    }
+
+    // Check 4: Prevent consecutive operators
+    const consecutiveOperatorsRegex = /[+\-*/^]{2,}/;
+    if (consecutiveOperatorsRegex.test(cleanedExpression)) {
+        throw new Error('Invalid expression: Consecutive operators are not allowed');
+    }
+
+    // Check 5: Prevent invalid start/end of expression
+    const startEndInvalidRegex = /^[+*/^)]|[+\-*/^.(]$/;
+    if (startEndInvalidRegex.test(cleanedExpression)) {
+        throw new Error('Expression cannot start with an operator (except -) or end with an operator');
+    }
+
+    // Check 6: Validate float numbers
+    const floatNumberRegex = /(\d+\.\d+|\d+)/g;
+    const numbers = cleanedExpression.match(floatNumberRegex) || [];
+    const operators = cleanedExpression.match(/[+\-*/^]/g) || [];
+
+    // Check for multiple decimal points in a number
+    const multipleDecimalPointsRegex = /\d+\.\d+\.\d+/;
+    if (multipleDecimalPointsRegex.test(cleanedExpression)) {
+        throw new Error('Invalid number format: Too many decimal points in a number');
+    }
+
+    // Check for invalid decimal placements
+    const invalidDecimalRegex = /\.\d*\.|[+\-*/^]\.|\.[+\-*/^]/;
+    if (invalidDecimalRegex.test(cleanedExpression)) {
+        throw new Error('Invalid decimal point placement');
+    }
+
+    // Ensure minimum numbers and operators
+    if (numbers.length < 2) {
+        throw new Error('Expression must contain at least 2 numbers');
+    }
+
+    if (operators.length < 1) {
+        throw new Error('Expression must contain at least 1 operator');
+    }
+
+    // If all checks pass, return the cleaned expression
+    return cleanedExpression;
+}
+
 // Handle Calculate Button Click
 calculateBtn.addEventListener('click', async () => {
     const expression = expressionInput.value.trim();
