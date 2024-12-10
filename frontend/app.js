@@ -112,7 +112,7 @@ calculateBtn.addEventListener('click', async () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ validatedExpression, mode }),
+            body: JSON.stringify({ expression: validatedExpression, mode }),
         });
 
         // Log the full response for debugging
