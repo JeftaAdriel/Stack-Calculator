@@ -3,13 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import traceback
 
-# from backend.prefix import prefix_calculate  # Import your prefix logic
-# from backend.postfix import postfix_calculate  # Import your postfix logic
-
-
 # FastAPI app instance
 app = FastAPI()
-
 
 # Add CORS middleware to allow frontend requests
 app.add_middleware(
@@ -27,8 +22,35 @@ class CalculationRequest(BaseModel):
 
 
 class CalculationResponse(BaseModel):
+    conversion_steps: list[str]
     steps: list[str]
     final_result: float
+
+
+def infix_to_prefix(expression):
+    """Convert infix expression to prefix"""
+    conversion_steps = [
+        f"Original Infix Expression: {expression}",
+        "Step 1: Start with an empty stack and empty prefix expression",
+        "Step 2: Scan the infix expression from right to left",
+        "Step 3: Apply conversion rules for operators and parentheses",
+        f"Converted Prefix Expression: {expression}",  # Placeholder
+    ]
+    converted_expression = expression  # Placeholder
+    return {"conversion_steps": conversion_steps, "converted_expression": converted_expression}
+
+
+def infix_to_postfix(expression):
+    """Convert infix expression to postfix"""
+    conversion_steps = [
+        f"Original Infix Expression: {expression}",
+        "Step 1: Start with an empty stack and empty postfix expression",
+        "Step 2: Scan the infix expression from left to right",
+        "Step 3: Apply conversion rules for operators and parentheses",
+        f"Converted Postfix Expression: {expression}",  # Placeholder
+    ]
+    converted_expression = expression  # Placeholder
+    return {"conversion_steps": conversion_steps, "converted_expression": converted_expression}
 
 
 def prefix_calculate(expression):
@@ -37,9 +59,17 @@ def prefix_calculate(expression):
         if not expression:
             raise ValueError("Expression cannot be empty")
 
-        steps = [f"Received prefix expression: {expression}", "Step 1: Convert expression to prefix notation", "Step 2: Evaluate prefix expression"]
-        result = 42  # Placeholder
-        return {"steps": steps, "result": result}
+        calculation_steps = [
+            f"Prefix Expression: {expression}",
+            "Step 1: Initialize an empty stack",
+            "Step 2: Scan prefix expression from right to left",
+            "Step 3: When an operand is encountered, push to stack",
+            "Step 4: When an operator is encountered, pop operands and apply",
+            "Step 5: Push result back to stack",
+            "Final stack will contain the result",
+        ]
+        result = 42  # Placeholder calculation
+        return {"steps": calculation_steps, "result": result}
     except Exception as e:
         print(f"Prefix Calculation Error: {e}")
         print(traceback.format_exc())
@@ -52,13 +82,17 @@ def postfix_calculate(expression):
         if not expression:
             raise ValueError("Expression cannot be empty")
 
-        steps = [
-            f"Received postfix expression: {expression}",
-            "Step 1: Convert expression to postfix notation",
-            "Step 2: Evaluate postfix expression",
+        calculation_steps = [
+            f"Postfix Expression: {expression}",
+            "Step 1: Initialize an empty stack",
+            "Step 2: Scan postfix expression from left to right",
+            "Step 3: When an operand is encountered, push to stack",
+            "Step 4: When an operator is encountered, pop operands and apply",
+            "Step 5: Push result back to stack",
+            "Final stack will contain the result",
         ]
-        result = 42  # Placeholder
-        return {"steps": steps, "result": result}
+        result = 42  # Placeholder calculation
+        return {"steps": calculation_steps, "result": result}
     except Exception as e:
         print(f"Postfix Calculation Error: {e}")
         print(traceback.format_exc())
@@ -73,14 +107,21 @@ async def calculate(request: CalculationRequest):
         expression = request.expression
         mode = request.mode.lower()
 
+        # Conversion step
         if mode == "prefix":
-            result = prefix_calculate(expression)
+            conversion_result = infix_to_prefix(expression)
+            calculation_result = prefix_calculate(conversion_result["converted_expression"])
         elif mode == "postfix":
-            result = postfix_calculate(expression)
+            conversion_result = infix_to_postfix(expression)
+            calculation_result = postfix_calculate(conversion_result["converted_expression"])
         else:
             raise HTTPException(status_code=400, detail="Invalid calculation mode. Use 'prefix' or 'postfix'.")
 
-        return {"steps": result.get("steps", []), "final_result": result.get("result", None)}
+        return {
+            "conversion_steps": conversion_result.get("conversion_steps", []),
+            "steps": calculation_result.get("steps", []),
+            "final_result": calculation_result.get("result", None),
+        }
     except Exception as e:
         print(f"Calculation Endpoint Error: {e}")
         print(traceback.format_exc())

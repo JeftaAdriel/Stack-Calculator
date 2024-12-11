@@ -25,12 +25,24 @@
                 <button id="calculate-btn">Calculate</button>
             </div>
         </div>
-        <div id="results" class="card results hidden">
+
+        <!-- New Conversion Steps Card -->
+        <div id="conversion-results" class="card results hidden">
+            <div class="card-header">
+                <h1>Infix to <span id="conversion-mode">Postfix</span> Steps</h1>
+            </div>
+            <div class="card-body">
+                <div id="conversion-steps"></div>
+            </div>
+        </div>
+
+        <!-- Calculation Steps Card -->
+        <div id="calculation-results" class="card results hidden">
             <div class="card-header">
                 <h1>Calculation Steps</h1>
             </div>
             <div class="card-body">
-                <div id="steps"></div>
+                <div id="calculation-steps"></div>
                 <p id="final-result"></p>
             </div>
         </div>
