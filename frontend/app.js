@@ -103,6 +103,7 @@ calculateBtn.addEventListener('click', async () => {
 
         // Validate the expression
         const validatedExpression = validateExpression(expression);
+        console.log('Normalized Expression:', validatedExpression);
 
         calculateBtn.textContent = 'Calculating...';
         calculateBtn.disabled = true;
