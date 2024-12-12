@@ -75,16 +75,28 @@ function validateExpression(expression) {
     const numbers = cleanedExpression.match(floatNumberRegex) || [];
     const operators = cleanedExpression.match(/[+\-*/^]/g) || [];
 
-    // Check for multiple decimal points in a number
+    // Check 7: Multiple decimal points in a number
     const multipleDecimalPointsRegex = /\d+\.\d+\.\d+/;
     if (multipleDecimalPointsRegex.test(cleanedExpression)) {
         throw new Error('Invalid number format: Too many decimal points in a number');
     }
 
-    // Check for invalid decimal placements
+    // Check 8: Invalid decimal placements
     const invalidDecimalRegex = /\.\d*\.|[+\-*/^]\.|\.[+\-*/^]/;
     if (invalidDecimalRegex.test(cleanedExpression)) {
         throw new Error('Invalid decimal point placement');
+    }
+
+    // Check 9: Disallow leading zeros
+    const leadingZeroRegex = /(^|[+\-*/^(])0\d+/;
+    if (leadingZeroRegex.test(cleanedExpression)) {
+        throw new Error('Invalid number format: Leading zeros are not allowed');
+    }
+
+    // Check 10: Ensure valid placement of parentheses
+    const invalidParenthesesPlacementRegex = /\)\(/;
+    if (invalidParenthesesPlacementRegex.test(cleanedExpression)) {
+        throw new Error('Invalid placement of parentheses');
     }
 
     // Ensure minimum numbers and operators

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from backend import prefix_expression
+from backend import prefix_expression, postfix_expression
 import traceback
 
 # FastAPI app instance
@@ -113,8 +113,8 @@ async def calculate(request: CalculationRequest):
             prefix, conversion_steps = prefix_expression.infix_to_prefix(expression)
             final_result, calculate_steps = prefix_expression.calculate_prefix(prefix)
         elif mode == "postfix":
-            conversion_result = infix_to_postfix(expression)
-            calculation_result = postfix_calculate(conversion_result["converted_expression"])
+            postfix, conversion_steps = postfix_expression.infix_to_postfix(expression)
+            final_result, calculate_steps = postfix_expression.calculate_postfix(postfix)
         else:
             raise HTTPException(status_code=400, detail="Invalid calculation mode. Use 'prefix' or 'postfix'.")
 
