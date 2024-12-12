@@ -97,3 +97,12 @@ button:hover {
 .hidden {
     display: none;
 }
+
+.final-result {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00796b;
+    text-align: center;
+    margin: 0;
+    padding: 10px;
+}

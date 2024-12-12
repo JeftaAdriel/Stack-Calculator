@@ -165,19 +165,29 @@ calculateBtn.addEventListener('click', async () => {
                 stepDiv.innerHTML = `<span>${step}</span>`;
                 calculationStepsDiv.appendChild(stepDiv);
             });
-            finalResultP.textContent = `Final Result: ${data.final_result}`;
             calculationResultsDiv.classList.remove('hidden');
         } else {
             calculationResultsDiv.classList.add('hidden');
+        }
+
+        // Populate Final Result Card
+        const finalResultCard = document.getElementById('final-result-card');
+        const finalResultText = document.getElementById('final-result-text');
+        if (data.final_result !== undefined) {
+            finalResultText.textContent = `Final Result: ${data.final_result}`;
+            finalResultCard.classList.remove('hidden');
+        } else {
+            finalResultCard.classList.add('hidden');
         }
 
     } catch (error) {
         console.error('Detailed Calculation Error:', error);
         alert(`Calculation failed: ${error.message}`);
 
-        // Hide both result cards in case of error
+        // Hide all result cards in case of error
         conversionResultsDiv.classList.add('hidden');
         calculationResultsDiv.classList.add('hidden');
+        document.getElementById('final-result-card').classList.add('hidden');
     } finally {
         calculateBtn.textContent = 'Calculate';
         calculateBtn.disabled = false;
