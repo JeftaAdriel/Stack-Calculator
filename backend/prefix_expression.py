@@ -88,8 +88,10 @@ def calculate_prefix(prefix: list):
             elif char == "^":
                 result = op1**op2
 
-            calculate_steps.append(f"Langkah {step_count}: Pop {op1} dan {op2}, lalu hitung {op1} {char} {op2} = {result}.")
-            calculate_steps.append(f"Masukkan hasil {result} ke stack.")
+            calculate_steps.append(
+                f"Langkah {step_count}: Pop {op1} dan {op2}, lalu hitung {op1} {char} {op2} = {result}. Kemudian masukkan {result} ke stack."
+            )
+            step_count += 1
             stack.push(result)
 
     # Hasil akhir
