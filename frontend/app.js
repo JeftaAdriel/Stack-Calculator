@@ -173,7 +173,7 @@ calculateBtn.addEventListener('click', async () => {
         // Populate Final Result Card
         const finalResultCard = document.getElementById('final-result-card');
         const finalResultText = document.getElementById('final-result-text');
-        if (data.final_result !== undefined) {
+        if (data.final_result) {
             finalResultText.textContent = `Final Result: ${data.final_result}`;
             finalResultCard.classList.remove('hidden');
         } else {
