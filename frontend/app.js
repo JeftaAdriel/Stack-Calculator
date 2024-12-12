@@ -138,7 +138,7 @@ calculateBtn.addEventListener('click', async () => {
         if (data.conversion_steps) {
             data.conversion_steps.forEach((step) => {
                 const stepDiv = document.createElement('div');
-                stepDiv.textContent = `${step}`;
+                stepDiv.innerHTML = `<span>${step}</span>`;
                 conversionStepsDiv.appendChild(stepDiv);
             });
             conversionResultsDiv.classList.remove('hidden');
@@ -148,9 +148,9 @@ calculateBtn.addEventListener('click', async () => {
 
         // Populate Calculation Steps
         if (data.calculate_steps) {
-            data.steps.forEach((step) => {
+            data.calculate_steps.forEach((step) => {
                 const stepDiv = document.createElement('div');
-                stepDiv.textContent = `${step}`;
+                stepDiv.innerHTML = `<span>${step}</span>`;
                 calculationStepsDiv.appendChild(stepDiv);
             });
             finalResultP.textContent = `Final Result: ${data.final_result}`;
