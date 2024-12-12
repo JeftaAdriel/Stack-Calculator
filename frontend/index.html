@@ -5,29 +5,146 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stack-Based Calculator</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Existing CSS with additional calculator styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .calculator {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .display {
+            width: 100%;
+            height: 60px;
+            background-color: #e0f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 10px;
+            font-size: 1.5rem;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .calculator-grid button {
+            width: 100%;
+            aspect-ratio: 1;
+            font-size: 1.2rem;
+            background-color: #b2ebf2;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .calculator-grid button:hover {
+            background-color: #80deea;
+        }
+
+        .mode-selection {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-selection button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .mode-selection button.active {
+            background-color: #00796b;
+            color: #ffffff;
+        }
+
+        .mode-selection button:not(.active) {
+            background-color: #ffffff;
+            color: #00796b;
+            border: 1px solid #b2ebf2;
+        }
+
+        .results {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="card">
-            <div class="card-header">
-                <h1>Enter Mathematical Expression</h1>
+        <!-- Calculator Interface -->
+        <div class="calculator">
+            <div class="display" id="display">0</div>
+            <div class="mode-selection">
+                <button id="postfix-btn" class="active">Postfix</button>
+                <button id="prefix-btn">Prefix</button>
             </div>
-            <div class="card-body">
-                <div class="input-group">
-                    <input type="text" id="expression" placeholder="Enter expression (e.g., 3 + 4 * 2)">
-                </div>
-                <div class="mode-selection">
-                    <button id="postfix-btn" class="active">Postfix</button>
-                    <button id="prefix-btn">Prefix</button>
-                </div>
-                <button id="calculate-btn">Calculate</button>
+            <div class="calculator-grid">
+                <button data-action="clear">C</button>
+                <button data-action="delete">⌫</button>
+                <button data-action="power">^</button>
+                <button data-action="divide">/</button>
+
+                <button data-action="number">7</button>
+                <button data-action="number">8</button>
+                <button data-action="number">9</button>
+                <button data-action="multiply">*</button>
+
+                <button data-action="number">4</button>
+                <button data-action="number">5</button>
+                <button data-action="number">6</button>
+                <button data-action="subtract">-</button>
+
+                <button data-action="number">1</button>
+                <button data-action="number">2</button>
+                <button data-action="number">3</button>
+                <button data-action="add">+</button>
+
+                <button data-action="number">0</button>
+                <button data-action="decimal">.</button>
+                <button data-action="parenthesis-open">(</button>
+                <button data-action="parenthesis-close">)</button>
+
+                <button data-action="calculate" class="calculate-btn">Calculate</button>
             </div>
         </div>
 
         <!-- Conversion Steps Card -->
-        <div id="conversion-results" class="card results hidden">
+        <div id="conversion-results" class="results hidden">
             <div class="card-header">
                 <h1>Infix to <span id="conversion-mode">Postfix</span> Steps</h1>
             </div>
@@ -37,26 +154,252 @@
         </div>
 
         <!-- Calculation Steps Card -->
-        <div id="calculation-results" class="card results hidden">
+        <div id="calculation-results" class="results hidden">
             <div class="card-header">
                 <h1>Calculation Steps</h1>
             </div>
             <div class="card-body">
                 <div id="calculation-steps"></div>
-            </div>
-        </div>
-
-        <!-- Final Result Card -->
-        <div id="final-result-card" class="card results hidden">
-            <div class="card-header">
-                <h1>Final Result</h1>
-            </div>
-            <div class="card-body">
-                <p id="final-result-text" class="final-result"></p>
+                <p id="final-result"></p>
             </div>
         </div>
     </div>
-    <script src="app.js"></script>
+
+    <script>
+        // DOM Elements
+        const display = document.getElementById('display');
+        const postfixBtn = document.getElementById('postfix-btn');
+        const prefixBtn = document.getElementById('prefix-btn');
+        const calculateBtn = document.querySelector('.calculate-btn');
+
+        // Conversion and Calculation Results Elements
+        const conversionResultsDiv = document.getElementById('conversion-results');
+        const calculationResultsDiv = document.getElementById('calculation-results');
+        const conversionStepsDiv = document.getElementById('conversion-steps');
+        const calculationStepsDiv = document.getElementById('calculation-steps');
+        const conversionModeSpan = document.getElementById('conversion-mode');
+        const finalResultP = document.getElementById('final-result');
+
+        // State
+        let mode = 'postfix'; // Default mode
+        let currentExpression = '';
+
+        // Event Listeners for Mode Selection
+        postfixBtn.addEventListener('click', () => {
+            mode = 'postfix';
+            postfixBtn.classList.add('active');
+            prefixBtn.classList.remove('active');
+        });
+
+        prefixBtn.addEventListener('click', () => {
+            mode = 'prefix';
+            prefixBtn.classList.add('active');
+            postfixBtn.classList.remove('active');
+        });
+
+        // Calculator Button Event Listeners
+        document.querySelectorAll('.calculator-grid button').forEach(button => {
+            button.addEventListener('click', () => {
+                const action = button.getAttribute('data-action');
+                const buttonText = button.textContent;
+
+                switch (action) {
+                    case 'number':
+                    case 'add':
+                    case 'subtract':
+                    case 'multiply':
+                    case 'divide':
+                    case 'power':
+                    case 'decimal':
+                    case 'parenthesis-open':
+                    case 'parenthesis-close':
+                        updateDisplay(buttonText);
+                        break;
+                    case 'clear':
+                        clearDisplay();
+                        break;
+                    case 'delete':
+                        deleteLastCharacter();
+                        break;
+                    case 'calculate':
+                        calculateExpression();
+                        break;
+                }
+            });
+        });
+
+        function updateDisplay(value) {
+            // If display shows 0, replace it
+            if (display.textContent === '0' && '0123456789'.includes(value)) {
+                display.textContent = value;
+                currentExpression = value;
+            } else {
+                display.textContent += value;
+                currentExpression += value;
+            }
+        }
+
+        function clearDisplay() {
+            display.textContent = '0';
+            currentExpression = '';
+        }
+
+        function deleteLastCharacter() {
+            if (display.textContent.length > 1) {
+                display.textContent = display.textContent.slice(0, -1);
+                currentExpression = currentExpression.slice(0, -1);
+            } else {
+                clearDisplay();
+            }
+        }
+
+        async function calculateExpression() {
+            try {
+                // Validate the expression using the existing validation function
+                const validatedExpression = validateExpression(currentExpression);
+
+                // Disable calculate button during processing
+                calculateBtn.textContent = 'Calculating...';
+                calculateBtn.disabled = true;
+
+                // Update conversion mode display
+                conversionModeSpan.textContent = mode === 'postfix' ? 'Postfix' : 'Prefix';
+
+                // Send request to backend
+                const response = await fetch('/api/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ expression: validatedExpression, mode }),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+
+                const data = await response.json();
+
+                // Clear previous results
+                conversionStepsDiv.innerHTML = '';
+                calculationStepsDiv.innerHTML = '';
+
+                // Populate Conversion Steps
+                if (data.conversion_steps) {
+                    data.conversion_steps.forEach((step, index) => {
+                        const stepDiv = document.createElement('div');
+                        stepDiv.textContent = `${index + 1}. ${step}`;
+                        conversionStepsDiv.appendChild(stepDiv);
+                    });
+                    conversionResultsDiv.classList.remove('hidden');
+                } else {
+                    conversionResultsDiv.classList.add('hidden');
+                }
+
+                // Populate Calculation Steps
+                if (data.steps) {
+                    data.steps.forEach((step, index) => {
+                        const stepDiv = document.createElement('div');
+                        stepDiv.textContent = `${index + 1}. ${step}`;
+                        calculationStepsDiv.appendChild(stepDiv);
+                    });
+                    finalResultP.textContent = `Final Result: ${data.final_result}`;
+                    calculationResultsDiv.classList.remove('hidden');
+
+                    // Update display with final result
+                    display.textContent = data.final_result;
+                    currentExpression = data.final_result;
+                } else {
+                    calculationResultsDiv.classList.add('hidden');
+                }
+
+            } catch (error) {
+                console.error('Detailed Calculation Error:', error);
+                alert(`Calculation failed: ${error.message}`);
+
+                // Hide both result cards in case of error
+                conversionResultsDiv.classList.add('hidden');
+                calculationResultsDiv.classList.add('hidden');
+            } finally {
+                calculateBtn.textContent = 'Calculate';
+                calculateBtn.disabled = false;
+            }
+        }
+
+        // Input Validation Function (copied from previous implementation)
+        function validateExpression(expression) {
+            // Remove all whitespace
+            const cleanedExpression = expression.replace(/\s+/g, '');
+
+            // Regular expression for valid characters (supporting float numbers)
+            const validCharRegex = /^[0-9+\-*/()\.^\s]+$/;
+
+            // Check 1: Only allow valid characters
+            if (!validCharRegex.test(cleanedExpression)) {
+                throw new Error('Invalid characters in expression. Only numbers and +, -, *, /, ^, (), . are allowed.');
+            }
+
+            // Check 2: Balanced parentheses
+            let parenthesesCount = 0;
+            for (let char of cleanedExpression) {
+                if (char === '(') parenthesesCount++;
+                if (char === ')') parenthesesCount--;
+
+                // Prevent negative count (more closing than opening)
+                if (parenthesesCount < 0) {
+                    throw new Error('Unbalanced parentheses: Too many closing parentheses');
+                }
+            }
+
+            // Check 3: Parentheses are balanced at the end
+            if (parenthesesCount !== 0) {
+                throw new Error('Unbalanced parentheses: Not all parentheses are closed');
+            }
+
+            // Check 4: Prevent consecutive operators
+            const consecutiveOperatorsRegex = /[+\-*/^]{2,}/;
+            if (consecutiveOperatorsRegex.test(cleanedExpression)) {
+                throw new Error('Invalid expression: Consecutive operators are not allowed');
+            }
+
+            // Check 5: Prevent invalid start/end of expression
+            const startEndInvalidRegex = /^[+*/^)]|[+\-*/^.(]$/;
+            if (startEndInvalidRegex.test(cleanedExpression)) {
+                throw new Error('Expression cannot start with an operator (except -) or end with an operator');
+            }
+
+            // Check 6: Validate float numbers
+            const floatNumberRegex = /(\d+\.\d+|\d+)/g;
+            const numbers = cleanedExpression.match(floatNumberRegex) || [];
+            const operators = cleanedExpression.match(/[+\-*/^]/g) || [];
+
+            // Check for multiple decimal points in a number
+            const multipleDecimalPointsRegex = /\d+\.\d+\.\d+/;
+            if (multipleDecimalPointsRegex.test(cleanedExpression)) {
+                throw new Error('Invalid number format: Too many decimal points in a number');
+            }
+
+            // Check for invalid decimal placements
+            const invalidDecimalRegex = /\.\d*\.|[+\-*/^]\.|\.[+\-*/^]/;
+            if (invalidDecimalRegex.test(cleanedExpression)) {
+                throw new Error('Invalid decimal point placement');
+            }
+
+            // Ensure minimum numbers and operators
+            if (numbers.length < 2) {
+                throw new Error('Expression must contain at least 2 numbers');
+            }
+
+            if (operators.length < 1) {
+                throw new Error('Expression must contain at least 1 operator');
+            }
+
+            // If all checks pass, return the cleaned expression
+            return cleanedExpression;
+        }
+    </script>
 </body>
 
 </html>
