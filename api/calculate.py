@@ -1,15 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from backend import prefix_expression, postfix_expression
 import traceback
-
-# from backend.prefix import prefix_calculate  # Import your prefix logic
-# from backend.postfix import postfix_calculate  # Import your postfix logic
-
 
 # FastAPI app instance
 app = FastAPI()
-
 
 # Add CORS middleware to allow frontend requests
 app.add_middleware(
@@ -27,42 +23,9 @@ class CalculationRequest(BaseModel):
 
 
 class CalculationResponse(BaseModel):
-    steps: list[str]
+    conversion_steps: list[str]
+    calculate_steps: list[str]
     final_result: float
-
-
-def prefix_calculate(expression):
-    try:
-        # Detailed error handling
-        if not expression:
-            raise ValueError("Expression cannot be empty")
-
-        steps = [f"Received prefix expression: {expression}", "Step 1: Convert expression to prefix notation", "Step 2: Evaluate prefix expression"]
-        result = 42  # Placeholder
-        return {"steps": steps, "result": result}
-    except Exception as e:
-        print(f"Prefix Calculation Error: {e}")
-        print(traceback.format_exc())
-        raise
-
-
-def postfix_calculate(expression):
-    try:
-        # Detailed error handling
-        if not expression:
-            raise ValueError("Expression cannot be empty")
-
-        steps = [
-            f"Received postfix expression: {expression}",
-            "Step 1: Convert expression to postfix notation",
-            "Step 2: Evaluate postfix expression",
-        ]
-        result = 42  # Placeholder
-        return {"steps": steps, "result": result}
-    except Exception as e:
-        print(f"Postfix Calculation Error: {e}")
-        print(traceback.format_exc())
-        raise
 
 
 @app.post("/api/calculate", response_model=CalculationResponse)
@@ -73,14 +36,21 @@ async def calculate(request: CalculationRequest):
         expression = request.expression
         mode = request.mode.lower()
 
+        # Conversion step
         if mode == "prefix":
-            result = prefix_calculate(expression)
+            prefix, conversion_steps = prefix_expression.infix_to_prefix(expression)
+            final_result, calculate_steps = prefix_expression.calculate_prefix(prefix)
         elif mode == "postfix":
-            result = postfix_calculate(expression)
+            postfix, conversion_steps = postfix_expression.infix_to_postfix(expression)
+            final_result, calculate_steps = postfix_expression.calculate_postfix(postfix)
         else:
             raise HTTPException(status_code=400, detail="Invalid calculation mode. Use 'prefix' or 'postfix'.")
 
-        return {"steps": result.get("steps", []), "final_result": result.get("result", None)}
+        return {
+            "conversion_steps": conversion_steps,
+            "calculate_steps": calculate_steps,
+            "final_result": final_result,
+        }
     except Exception as e:
         print(f"Calculation Endpoint Error: {e}")
         print(traceback.format_exc())

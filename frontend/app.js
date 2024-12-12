@@ -3,8 +3,13 @@ const expressionInput = document.getElementById('expression');
 const postfixBtn = document.getElementById('postfix-btn');
 const prefixBtn = document.getElementById('prefix-btn');
 const calculateBtn = document.getElementById('calculate-btn');
-const resultsDiv = document.getElementById('results');
-const stepsDiv = document.getElementById('steps');
+
+// New result card elements
+const conversionResultsDiv = document.getElementById('conversion-results');
+const calculationResultsDiv = document.getElementById('calculation-results');
+const conversionStepsDiv = document.getElementById('conversion-steps');
+const calculationStepsDiv = document.getElementById('calculation-steps');
+const conversionModeSpan = document.getElementById('conversion-mode');
 const finalResultP = document.getElementById('final-result');
 
 // State
@@ -70,16 +75,28 @@ function validateExpression(expression) {
     const numbers = cleanedExpression.match(floatNumberRegex) || [];
     const operators = cleanedExpression.match(/[+\-*/^]/g) || [];
 
-    // Check for multiple decimal points in a number
+    // Check 7: Multiple decimal points in a number
     const multipleDecimalPointsRegex = /\d+\.\d+\.\d+/;
     if (multipleDecimalPointsRegex.test(cleanedExpression)) {
         throw new Error('Invalid number format: Too many decimal points in a number');
     }
 
-    // Check for invalid decimal placements
+    // Check 8: Invalid decimal placements
     const invalidDecimalRegex = /\.\d*\.|[+\-*/^]\.|\.[+\-*/^]/;
     if (invalidDecimalRegex.test(cleanedExpression)) {
         throw new Error('Invalid decimal point placement');
+    }
+
+    // Check 9: Disallow leading zeros
+    const leadingZeroRegex = /(^|[+\-*/^(])0\d+/;
+    if (leadingZeroRegex.test(cleanedExpression)) {
+        throw new Error('Invalid number format: Leading zeros are not allowed');
+    }
+
+    // Check 10: Ensure valid placement of parentheses
+    const invalidParenthesesPlacementRegex = /\)\(/;
+    if (invalidParenthesesPlacementRegex.test(cleanedExpression)) {
+        throw new Error('Invalid placement of parentheses');
     }
 
     // Ensure minimum numbers and operators
@@ -95,18 +112,19 @@ function validateExpression(expression) {
     return cleanedExpression;
 }
 
-// Handle Calculate Button Click
+// Modify the calculate button event listener
 calculateBtn.addEventListener('click', async () => {
     const expression = expressionInput.value.trim();
 
     try {
-
         // Validate the expression
         const validatedExpression = validateExpression(expression);
-        console.log('Normalized Expression:', validatedExpression);
 
         calculateBtn.textContent = 'Calculating...';
         calculateBtn.disabled = true;
+
+        // Update conversion mode display
+        conversionModeSpan.textContent = mode === 'postfix' ? 'Postfix' : 'Prefix';
 
         const response = await fetch('/api/calculate', {
             method: 'POST',
@@ -116,9 +134,6 @@ calculateBtn.addEventListener('click', async () => {
             body: JSON.stringify({ expression: validatedExpression, mode }),
         });
 
-        // Log the full response for debugging
-        console.log('Response status:', response.status);
-
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Error response:', errorText);
@@ -127,20 +142,67 @@ calculateBtn.addEventListener('click', async () => {
 
         const data = await response.json();
 
-        stepsDiv.innerHTML = '';
-        data.steps.forEach((step, index) => {
-            const stepDiv = document.createElement('div');
-            stepDiv.textContent = `${index + 1}. ${step}`;
-            stepsDiv.appendChild(stepDiv);
-        });
-        finalResultP.textContent = `Final Result: ${data.final_result}`;
+        // Clear previous results
+        conversionStepsDiv.innerHTML = '';
+        calculationStepsDiv.innerHTML = '';
 
-        resultsDiv.classList.remove('hidden');
+        // Populate Conversion Steps
+        if (data.conversion_steps) {
+            data.conversion_steps.forEach((step) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.innerHTML = `<span>${step}</span>`;
+                conversionStepsDiv.appendChild(stepDiv);
+            });
+            conversionResultsDiv.classList.remove('hidden');
+        } else {
+            conversionResultsDiv.classList.add('hidden');
+        }
+
+        // Populate Calculation Steps
+        if (data.calculate_steps) {
+            data.calculate_steps.forEach((step) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.innerHTML = `<span>${step}</span>`;
+                calculationStepsDiv.appendChild(stepDiv);
+            });
+            calculationResultsDiv.classList.remove('hidden');
+        } else {
+            calculationResultsDiv.classList.add('hidden');
+        }
+
+        // Populate Final Result Card
+        const finalResultCard = document.getElementById('final-result-card');
+        const finalResultText = document.getElementById('final-result-text');
+        if (data.final_result) {
+            finalResultText.textContent = `Final Result: ${data.final_result}`;
+            finalResultCard.classList.remove('hidden');
+        } else {
+            finalResultCard.classList.add('hidden');
+        }
+
     } catch (error) {
         console.error('Detailed Calculation Error:', error);
         alert(`Calculation failed: ${error.message}`);
+
+        // Hide all result cards in case of error
+        conversionResultsDiv.classList.add('hidden');
+        calculationResultsDiv.classList.add('hidden');
+        document.getElementById('final-result-card').classList.add('hidden');
     } finally {
         calculateBtn.textContent = 'Calculate';
         calculateBtn.disabled = false;
     }
+});
+
+// Update mode buttons to change the conversion mode text
+postfixBtn.addEventListener('click', () => {
+    mode = 'postfix';
+    postfixBtn.classList.add('active');
+    prefixBtn.classList.remove('active');
+});
+
+prefixBtn.addEventListener('click', () => {
+    mode = 'prefix';
+    prefixBtn.classList.add('active');
+    postfixBtn.classList.remove('active');
 });
